@@ -3,9 +3,9 @@
 %   same parameters of 'fcspectrum'.
 % 
 % Author: Danilo Benette Marques, 2025
-% Last update: 2025-03-19
+% Last update: 2026-01-30
 
-function [tvalue,pvalue,f,FC,FCsurr] = fcspectrum2(x,y,window,noverlap,nfft,Fs,fcest,freqrange,bandlim)
+function [tvalue,pvalue,f,FC,FCsurr] = fcspectrum2(x,y,window,noverlap,nfft,Fs,fcest,freqrange,bandlim,surr)
 
 %Leave empty to use default fcspectrum params
 if nargin<3
@@ -32,7 +32,7 @@ end
 
 %Run real and surrogate FC
 [FC,~,f] = fcspectrum(x,y,window,noverlap,nfft,Fs,fcest,freqrange,bandlim);
-[FCsurr] = fcspectrum(x,y,window,noverlap,nfft,Fs,fcest,freqrange,bandlim,true);
+[FCsurr] = fcspectrum(x,y,window,noverlap,nfft,Fs,fcest,freqrange,bandlim,surr);
 
 %T-tests
 [~,pvalue,~,stat] = ttest2(FC',FCsurr');

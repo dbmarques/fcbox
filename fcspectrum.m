@@ -86,7 +86,7 @@
 %       Same computations for instantaneous bandpass-filtered signals
 % 
 % Author: Danilo Benette Marques, 2018
-% Last update: 2025-04-02
+% Last update: 2026-01-30
 
 function [FC,MPD,f] = fcspectrum(x,y,window,noverlap,nfft,Fs,fcest,freqrange,bandlim,surr)
 
@@ -360,9 +360,9 @@ for trial = 1:Ntrials
         case 'dwpli'
             % Debiased weighted phase-lag index 
             % OBS: as computed in FieldTrip
-            imagsum      = nansum(imag(xywin_fft),2);
-            imagsumW     = nansum(abs(imag(xywin_fft)),2);
-            debiasfactor = nansum(imag(xywin_fft).^2,2);
+            imagsum      = sum(imag(xywin_fft),2,"omitmissing");
+            imagsumW     = sum(abs(imag(xywin_fft)),2,"omitmissing");
+            debiasfactor = sum(imag(xywin_fft).^2,2,"omitmissing");
             dwpli  = (imagsum.^2 - debiasfactor)./(imagsumW.^2 - debiasfactor);
 
             coh = dwpli;
@@ -370,11 +370,17 @@ for trial = 1:Ntrials
     end
     coh = coh(fidx,:); 
 
+    %if NaN
+    if any(isnan(coh) & ~isreal(coh))
+        warning('Complex NaN found')
+        coh = abs(coh);
+    end
+
     %Band average
     if isband
         for band = 1:size(bandlim,1)
-            Coh(band,:) = nanmean(coh(f>=bandlim(band,1) & f<=bandlim(band,2),:),1);
-            Mpd(band,:) = nanmean(mpd(f>=bandlim(band,1) & f<=bandlim(band,2),:),1);
+            Coh(band,:) = mean(coh(f>=bandlim(band,1) & f<=bandlim(band,2),:),1,"omitmissing");
+            Mpd(band,:) = mean(mpd(f>=bandlim(band,1) & f<=bandlim(band,2),:),1,"omitmissing");
         end
         coh = Coh;
         mpd = Mpd;
